@@ -1,0 +1,114 @@
+<html>
+    <head>
+        <title> Place your bets! Good luck :D!!</title>
+
+        <style>
+            body{ 
+                
+                background-repeat: no-repeat;
+                background-size: 100% 100%;
+            }
+            
+            .cssbut{
+                display: inline-block;
+                text-align: center;
+                text-decoration: none;
+                margin: 2px 0;
+                border: solid 1px transparent;
+                border-radius: 4px;
+                padding: 0.5em 1em;
+                color: #ffffff;
+                background-color: #9555af;
+                cursor: pointer;
+                
+                
+            }
+            .in{
+                display: inline-block;
+                border: solid 10px transparent;
+                border-radius: 3px;
+                color: #000000;
+                opacity:0.7
+            }
+            .newdiv {
+                position: relative;
+                margin-top: 30px;
+                border: solid 10px transparent;
+                border-radius: 3px;
+                padding: 0.5em 1em;
+                color: #050000;
+                opacity: 0.7;
+                color: #96c8d4;
+                font-style: italic;
+                font-weight: 900;
+                font-size: 25;
+            
+                background-color: #1c011d;
+            }
+        </style>
+    </head>
+<body >
+    <h1> Welcome to 50/50, place your bet!</h1>
+    <h2> <a href = '/dashboard'>Dashboard</a></h2>
+    <h2 id = "result"></h2>
+    
+    <input type = 'number' class = "in"name = "pbet" id = "pbet">
+     <button onclick="placeBet()" class = "cssbut" id = 'pb'>Place Bet </button>
+    <br>
+    <div id = "allBets"></div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <script>
+        counter = 0;
+        function placeBet(){
+            counter++;
+            bet = $("#pbet").get(0).value;
+            newDiv = document.createElement('div');
+            newID = "v"+counter;
+            newDiv.setAttribute('id', newID);
+            newDiv.setAttribute('class', 'newdiv');
+            p=  document.createElement('p');
+            p.innerHTML = bet;
+            bid = "tb"+counter;
+            button = document.createElement('button');
+            t = document.createTextNode("Take Bet");
+            button.appendChild(t);
+            button.setAttribute('id', bid);
+            button.setAttribute('class', 'cssbut');
+            $(document).on('click', '#'+bid, takeBet);
+            newDiv.appendChild(p);
+            newDiv.appendChild(button);
+            jQuery('<div> hey man </div>', {
+                id: 'bname',
+                title: 'store user name'
+            }).appendTo('#'+ newID);
+            document.body.appendChild(newDiv);
+
+        }
+        function takeBet(){
+            
+            newID = $("#"+ this.id).parent().attr('id');
+            console.log(newID)
+            bet = $("#pbet").get(0).value;
+            bet = parseInt(bet);
+            $("#"+newID).remove();
+            luck = Math.round(Math.random())
+            toSend = {'luck':luck, 'bet': bet};
+            $.ajax({url: "http://localhost:3000/takeBet", success: function(result){
+                console.log("success my dude");
+            },
+            type: 'POST',
+            data: JSON.stringify(toSend),
+            contentType: 'application/json',
+    }).done(data =>{
+            if(luck == 0){
+                document.getElementById('result').innerHTML = "You lost "+bet+" coins, RIP"
+            }   
+            else{
+                document.getElementById('result').innerHTML = "Congratulations, you've won "+ bet+" coins!"
+                console.log("Lucky cunt");
+            }
+        });
+    }
+    </script>
+</body>
+</html>
