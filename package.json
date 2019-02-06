@@ -1,0 +1,26 @@
+{
+  "name": "gambleit",
+  "version": "1.0.0",
+  "description": "simple betting application",
+  "main": "app.js",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4",
+    "express-session": "^1.15.6",
+    "mongoose": "^5.4.10"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ancientae0N/GambleIT.git"
+  },
+  "author": "Vishal",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Ancientae0N/GambleIT/issues"
+  },
+  "homepage": "https://github.com/Ancientae0N/GambleIT#readme"
+}
