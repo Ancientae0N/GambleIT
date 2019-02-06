@@ -4,7 +4,9 @@ A simple web based application to gamble virtual coins made to learn Node.js, mo
 First do:
 
 `npm install`
-them:
+
+
+then:
 
 `node test`
 
