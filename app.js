@@ -13,6 +13,13 @@ var mySchema = mongoose.Schema({
     coins: Number
 
 });
+var betsSchema = mongoose.Schema({
+    username: String,
+    coins: Number,
+
+});
+var betModel = mongoose.model('placedBets', betsSchema);
+var newBet = new betModel();
 var myModel = mongoose.model('gambler', mySchema);
 var newGambler = new myModel();
 app.get('/', (req, res)=>{
@@ -58,6 +65,18 @@ app.get('/getUsers', (req, res)=> {
 app.get('/gamble', (req, res)=>{
     res.sendFile(path.join(__dirname, 'gamble.html'));
 })
+app.post('/gamble', (req, res)=>{
+    betModel.find({}, (err, results)=>{
+        if(err){
+            console.log(err);
+        }
+        else{
+            console.log(results);
+            toSend = {'allresults': results};
+            return res.send(toSend);
+        }
+    });
+});
 app.post('/takeBet', (req,res)=>{
     console.log("this is my session", req.session.user);
     var query = {'username': req.session.user.username};
@@ -99,7 +118,18 @@ app.post('/register', (req,res)=>{
     });
 });
 
-
+app.post('/placeBet', (req,res)=>{
+    //console.log(req.body.emai);
+    //console.log(req.body.password);
+    us = req.session.user.username;
+    coins = req.body.coins;
+    newBet.username = us;
+    newBet.coins = coins;
+    newBet.save((err, savedObject)=>{
+        console.log("hey", savedObject);
+        res.send(savedObject);
+    });
+});
 
 app.listen(3000,()=>{
  console.log('connected');

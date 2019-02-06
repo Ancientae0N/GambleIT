@@ -47,7 +47,7 @@
             }
         </style>
     </head>
-<body >
+<body onload = "bodyLoad()">
     <h1> Welcome to 50/50, place your bet!</h1>
     <h2> <a href = '/dashboard'>Dashboard</a></h2>
     <h2 id = "result"></h2>
@@ -59,36 +59,86 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
     <script>
         counter = 0;
+        user = '';
         function placeBet(){
-            counter++;
             bet = $("#pbet").get(0).value;
+            toSend = {'coins': bet};
+            $.ajax({url: "http://localhost:3000/placeBet", success: function(result){
+                console.log("success my dude");
+            },
+            type: 'POST',
+            data: JSON.stringify(toSend),
+            contentType: 'application/json',
+        }).done(data=>{
             newDiv = document.createElement('div');
-            newID = "v"+counter;
+            newID = data._id;
+            p1 = document.createElement('p');
+            p1.setAttribute('id', 'bname');
+            p1.innerHTML = data.username;
             newDiv.setAttribute('id', newID);
             newDiv.setAttribute('class', 'newdiv');
             p=  document.createElement('p');
-            p.innerHTML = bet;
-            bid = "tb"+counter;
+            p.innerHTML = data.coins;
+            bid = newID;
             button = document.createElement('button');
             t = document.createTextNode("Take Bet");
+            console.log(user);
             button.appendChild(t);
             button.setAttribute('id', bid);
             button.setAttribute('class', 'cssbut');
             $(document).on('click', '#'+bid, takeBet);
+            newDiv.appendChild(p1);
             newDiv.appendChild(p);
             newDiv.appendChild(button);
-            jQuery('<div> hey man </div>', {
-                id: 'bname',
-                title: 'store user name'
-            }).appendTo('#'+ newID);
+            document.body.appendChild(newDiv);
+            
+});
+        }
+
+
+        function bodyLoad() {
+            $.ajax({url: "http://localhost:3000/gamble", success: function(result){
+                console.log("success my dude");
+            },
+            type: 'POST',
+            contentType: 'application/json',
+        }).done(data=>{
+            arr = data.allresults;
+            console.log(arr);
+            arr.forEach((item, index, arr)=>{
+            newDiv = document.createElement('div');
+            newID = item._id;
+            console.log(newID);
+            p1 = document.createElement('p');
+            p1.setAttribute('id', 'bname');
+            p1.innerHTML = item.username;
+            newDiv.setAttribute('id', newID);
+            newDiv.setAttribute('class', 'newdiv');
+            p=  document.createElement('p');
+            p.innerHTML = item.coins;
+            bid = newID;
+            button = document.createElement('button');
+            t = document.createTextNode("Take Bet");
+            console.log(user);
+            button.appendChild(t);
+            button.setAttribute('id', bid);
+            button.setAttribute('class', 'cssbut');
+            $(document).on('click', '#'+bid, takeBet);
+            newDiv.appendChild(p1);
+            newDiv.appendChild(p);
+            newDiv.appendChild(button);
             document.body.appendChild(newDiv);
 
+            
+    
+        }); 
+    });
         }
         function takeBet(){
             
-            newID = $("#"+ this.id).parent().attr('id');
+            newID = this.id;
             console.log(newID)
-            bet = $("#pbet").get(0).value;
+            bet = $("#bname").val();
             bet = parseInt(bet);
             $("#"+newID).remove();
             luck = Math.round(Math.random())
