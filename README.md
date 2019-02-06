@@ -8,5 +8,5 @@ First do:
 
 then:
 
-`node test`
+`npm test`
 
