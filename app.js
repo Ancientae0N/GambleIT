@@ -21,7 +21,6 @@ var betsSchema = mongoose.Schema({
 var betModel = mongoose.model('placedBets', betsSchema);
 
 var myModel = mongoose.model('gambler', mySchema);
-var newGambler = new myModel();
 app.get('/', (req, res)=>{
     res.redirect('/login');
 });
@@ -119,6 +118,7 @@ app.get('/register', (req, res)=>{
 app.post('/register', (req,res)=>{
     //console.log(req.body.emai);
     //console.log(req.body.password);
+    var newGambler = new myModel();
     us = req.body.username;
     password = req.body.password;
     newGambler.username = us;
