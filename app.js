@@ -19,7 +19,7 @@ var betsSchema = mongoose.Schema({
 
 });
 var betModel = mongoose.model('placedBets', betsSchema);
-var newBet = new betModel();
+
 var myModel = mongoose.model('gambler', mySchema);
 var newGambler = new myModel();
 app.get('/', (req, res)=>{
@@ -83,22 +83,34 @@ app.post('/takeBet', (req,res)=>{
     lucky = req.body.luck;
     if(lucky == 1){
         console.log(req.body.bet);
-        newData = req.session.user.coins + req.body.bet;
-        myModel.findOneAndUpdate(query, {$set:{coins:newData}}, {upsert:true}, function(err, doc){
+        newData1 = req.session.user.coins + req.body.bet;
+        newData2 = req.body.hiscoins - req.body.bet;
+        myModel.findOneAndUpdate(query, {$set:{coins:newData1}}, {upsert:true}, function(err, doc){
             if (err) return res.send(500, { error: err });
-            req.session.user.coins = newData;
+            req.session.user.coins = newData1;
             return res.send("succesfully saved");
+        });
+        myModel.findOneAndUpdate({'username': req.body.owner}, {$set:{coins:newData2}}, {upsert:true}, function(err, doc){
+            if (err) return res.send(500, { error: err });
+            console.log("Updated the other user too!");
         });
     }
     else{
         console.log(req.body.bet);
-        newData = req.session.user.coins - req.body.bet;
-        myModel.findOneAndUpdate(query, {$set:{coins:newData}}, {upsert:true}, function(err, doc){
+        newData1 = req.session.user.coins - req.body.bet;
+        newData2 = req.body.hiscoins + req.body.bet;
+        myModel.findOneAndUpdate(query, {$set:{coins:newData1}}, {upsert:true}, function(err, doc){
             if (err) return res.send(500, { error: err });
-            req.session.user.coins = newData;
+            req.session.user.coins = newData1;
             return res.send("succesfully saved");
         });
+        myModel.findOneAndUpdate({'username': req.body.owner}, {$set:{coins:newData2}}, {upsert:true}, function(err, doc){
+            if (err) return res.send(500, { error: err });
+        });
     }
+    betModel.deleteOne({'_id': req.body.id}, (err, result)=> {
+        console.log('succesfully removed');
+    });
 
 });
 app.get('/register', (req, res)=>{
@@ -121,8 +133,13 @@ app.post('/register', (req,res)=>{
 app.post('/placeBet', (req,res)=>{
     //console.log(req.body.emai);
     //console.log(req.body.password);
+    console.log("ohoho",req.session.user);
+    if(req.session.user.coins < req.body.coins){
+        return res.send({'coins': -1});
+    }
     us = req.session.user.username;
     coins = req.body.coins;
+    newBet = new betModel();
     newBet.username = us;
     newBet.coins = coins;
     newBet.save((err, savedObject)=>{
@@ -130,6 +147,23 @@ app.post('/placeBet', (req,res)=>{
         res.send(savedObject);
     });
 });
+app.get('/getBet/:betid', (req,res)=> {
+    betModel.findOne({'_id': req.params.betid}, (err, result)=>{
+        let b = result.toJSON();
+        b['currentuser'] = req.session.user.username;
+        myModel.findOne({'username': b.username }, (err, results)=>{
+            c = results.coins;
+            b['hiscoins'] = c;
+            res.send(b);
+        });
+    } );
+
+});
+app.get('/logout', (req,res)=>{
+    req.session.destroy(err => {
+        res.sendFile(path.join(__dirname, 'login.html'));
+    })
+})
 
 app.listen(3000,()=>{
  console.log('connected');

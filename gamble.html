@@ -50,6 +50,7 @@
 <body onload = "bodyLoad()">
     <h1> Welcome to 50/50, place your bet!</h1>
     <h2> <a href = '/dashboard'>Dashboard</a></h2>
+    <h2><a href = "/logout"> Logout</a></h2>
     <h2 id = "result"></h2>
     
     <input type = 'number' class = "in"name = "pbet" id = "pbet">
@@ -70,6 +71,7 @@
             data: JSON.stringify(toSend),
             contentType: 'application/json',
         }).done(data=>{
+            if(data.coins!=-1){
             newDiv = document.createElement('div');
             newID = data._id;
             p1 = document.createElement('p');
@@ -79,7 +81,7 @@
             newDiv.setAttribute('class', 'newdiv');
             p=  document.createElement('p');
             p.innerHTML = data.coins;
-            bid = newID;
+            bid = newID+'_';
             button = document.createElement('button');
             t = document.createTextNode("Take Bet");
             console.log(user);
@@ -91,6 +93,9 @@
             newDiv.appendChild(p);
             newDiv.appendChild(button);
             document.body.appendChild(newDiv);
+        }
+            else
+                alert("You don't have so many coins, win some you poor user!");
             
 });
         }
@@ -107,7 +112,7 @@
             console.log(arr);
             arr.forEach((item, index, arr)=>{
             newDiv = document.createElement('div');
-            newID = item._id;
+            newID = item._id ;
             console.log(newID);
             p1 = document.createElement('p');
             p1.setAttribute('id', 'bname');
@@ -116,14 +121,14 @@
             newDiv.setAttribute('class', 'newdiv');
             p=  document.createElement('p');
             p.innerHTML = item.coins;
-            bid = newID;
+            bid = item._id + '_';
             button = document.createElement('button');
             t = document.createTextNode("Take Bet");
             console.log(user);
+            $(document).one('click', '#'+bid, takeBet);
             button.appendChild(t);
             button.setAttribute('id', bid);
             button.setAttribute('class', 'cssbut');
-            $(document).on('click', '#'+bid, takeBet);
             newDiv.appendChild(p1);
             newDiv.appendChild(p);
             newDiv.appendChild(button);
@@ -135,14 +140,23 @@
     });
         }
         function takeBet(){
-            
-            newID = this.id;
-            console.log(newID)
-            bet = $("#bname").val();
-            bet = parseInt(bet);
-            $("#"+newID).remove();
+            var id = $("#"+ this.id).parent().attr('id');
+            console.log("current divs id is", id);
+            $.ajax({url: "http://localhost:3000/getBet/"+id, success: function(result){
+                console.log("successful GET");
+            },
+            type: 'GET',
+            contentType: 'application/json',
+        }).done(data=>{
+            bet = data.coins;
+            console.log("this is get methods data",data);
             luck = Math.round(Math.random())
-            toSend = {'luck':luck, 'bet': bet};
+            toSend = {'luck':luck, 'bet': bet, 'owner': data.username, 'hiscoins': data.hiscoins, 'id':data._id};
+            if(data.currentuser == data.username){
+                alert("Can't take your own bet my dude!");
+        }
+            else {
+            $("#"+data._id).remove();
             $.ajax({url: "http://localhost:3000/takeBet", success: function(result){
                 console.log("success my dude");
             },
@@ -159,6 +173,8 @@
             }
         });
     }
+});
+        }
     </script>
 </body>
 </html>
