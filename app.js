@@ -164,6 +164,16 @@ app.get('/logout', (req,res)=>{
         res.sendFile(path.join(__dirname, 'login.html'));
     })
 })
+app.get('/leaderboardDetails', (req,res)=>{
+    myModel.find({}, null, {sort: {'coins': -1}}, function(err, docs) { 
+        toSend = {'allresults': docs};
+        res.send(toSend);
+     });
+    });
+    app.get('/leaderboard', (req,res)=>{
+        res.sendFile(path.join(__dirname, 'leaderboard.html'));
+    });
+
 
 app.listen(3000,()=>{
  console.log('connected');
